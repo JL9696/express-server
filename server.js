@@ -1,37 +1,39 @@
 const express = require('express');
 const path = require('path');
+const hbs = require('express-handlebars');
 
 const app = express();
-
-app.use((req, res, next) => {
-  res.show = (name) => {
-    res.sendFile(path.join(__dirname, `/views/${name}`));
-  };
-  next();
-});
+app.engine('hbs', hbs());
+app.set('view engine', 'hbs');
 
 app.use(express.static(path.join(__dirname, '/public')));
 
-app.use('/user/forbidden', (req, res, next) => {
-  res.send('Go away!');
-});
-
 app.get('/', (req, res) => {
-  res.show('home.html');
+  res.render('index');
 });
 
-app.get('/home', (req, res) => {
-  res.show('home.html');
+app.get('/hello/:name', (req, res) => {
+  res.render('hello');
 });
-
 
 app.get('/about', (req, res) => {
-  res.show('about.html');
+  res.render('about');
 });
 
+app.get('/contact', (req, res) => {
+  res.render('contact');
+});
+
+app.get('/info', (req, res) => {
+  res.render('info');
+});
+
+app.get('/history', (req, res) => {
+  res.render('history');
+});
 
 app.use((req, res) => {
-  res.status(404).show('404.html');
+  res.status(404).send('404 not found...');
 })
 
 app.listen(8000, () => {
