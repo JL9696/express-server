@@ -1,6 +1,18 @@
 const express = require('express');
 const path = require('path');
 const hbs = require('express-handlebars');
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage }); 
 
 const app = express();
 app.engine('hbs', hbs());
@@ -14,7 +26,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/hello/:name', (req, res) => {
-  res.render('hello');
+  res.render('hello', { name: req.params.name });
 });
 
 app.get('/about', (req, res) => {
@@ -25,18 +37,18 @@ app.get('/contact', (req, res) => {
   res.render('contact');
 });
 
-app.post('/contact/send-message', (req, res) => {
+app.post('/contact/send-message', upload.single('image'), (req, res) => {
 
   const { author, sender, title, message } = req.body;
-
+  
   if(author && sender && title && message) {
-    res.send('The message has been sent!');
+    res.render('contact', { isSent: true });
   }
   else {
-    res.send('You can\'t leave fields empty!')
+    res.render('contact', { isError: true });
   }
-
 });
+
 
 app.get('/info', (req, res) => {
   res.render('info');
